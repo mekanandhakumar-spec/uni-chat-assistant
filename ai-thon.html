@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Wellness Monitor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #6b8cbc;
+            --accent: #ff7e5f;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+        }
+        
+        .logo h1 {
+            font-weight: 600;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .sidebar {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .user-profile {
+            text-align: center;
+            padding: 10px 0 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 10px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .card-title {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .mood-options {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .mood-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .mood-option:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .mood-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .mood-option.selected {
+            background-color: var(--light);
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mood-option.selected .mood-icon {
+            color: var(--primary);
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+        
+        .sentiment-result {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .positive {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: var(--success);
+        }
+        
+        .negative {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: var(--danger);
+        }
+        
+        .neutral {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: var(--warning);
+        }
+        
+        .recommendation {
+            padding: 15px;
+            background-color: var(--light);
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .recommendation h4 {
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .resources-list {
+            list-style: none;
+        }
+        
+        .resources-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .resources-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .resources-list a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .resources-list a:hover {
+            text-decoration: underline;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            nav ul {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .mood-options {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <h1>Student Wellness Monitor</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active">Dashboard</a></li>
+                        <li><a href="#">Progress</a></li>
+                        <li><a href="#">Resources</a></li>
+                        <li><a href="#">Settings</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2>Alex Johnson</h2>
+                    <p>Computer Science Student</p>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Check-ins</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3.8</div>
+                        <div class="stat-label">Avg. Mood</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">14</div>
+                        <div class="stat-label">Goals Met</div>
+                    </div>
+                </div>
+                
+                <h3>Weekly Focus</h3>
+                <p>Practice mindfulness for 10 minutes daily</p>
+                <div class="progress-bar" style="height: 10px; background-color: #e9ecef; border-radius: 5px; margin: 10px 0;">
+                    <div style="height: 100%; width: 60%; background-color: var(--primary); border-radius: 5px;"></div>
+                </div>
+                <p>4 of 7 days completed</p>
+                
+                <h3>Quick Links</h3>
+                <ul class="resources-list">
+                    <li><a href="#"><i class="fas fa-book"></i> Wellness Resources</a></li>
+                    <li><a href="#"><i class="fas fa-calendar"></i> Schedule Appointment</a></li>
+                    <li><a href="#"><i class="fas fa-hands-helping"></i> Support Groups</a></li>
+                    <li><a href="#"><i class="fas fa-mobile-alt"></i> Crisis Hotline</a></li>
+                </ul>
+            </div>
+            
+            <div class="dashboard">
+                <div class="left-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Daily Mood Check-in</h2>
+                            <span id="current-date">October 16, 2023</span>
+                        </div>
+                        
+                        <p>How are you feeling today?</p>
+                        
+                        <div class="mood-options">
+                            <div class="mood-option" data-value="1">
+                                <div class="mood-icon">😢</div>
+                                <div>Very Sad</div>
+                            </div>
+                            <div class="mood-option" data-value="2">
+                                <div class="mood-icon">😔</div>
+                                <div>Sad</div>
+                            </div>
+                            <div class="mood-option" data-value="3">
+                                <div class="mood-icon">😐</div>
+                                <div>Neutral</div>
+                            </div>
+                            <div class="mood-option" data-value="4">
+                                <div class="mood-icon">🙂</div>
+                                <div>Good</div>
+                            </div>
+                            <div class="mood-option" data-value="5">
+                                <div class="mood-icon">😄</div>
+                                <div>Great</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="journal-entry">Share more about your day (optional):</label>
+                            <textarea id="journal-entry" placeholder="What's on your mind?"></textarea>
+                        </div>
+                        
+                        <button id="analyze-btn" class="btn btn-primary">Analyze Sentiment</button>
+                        
+                        <div id="sentiment-result" class="sentiment-result" style="display: none;">
+                            <!-- Result will appear here -->
+                        </div>
+                        
+                        <button id="save-entry" class="btn btn-primary" style="display: none; width: 100%;">Save Entry</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Mood Trends</h2>
+                            <select id="time-range">
+                                <option value="week">Last Week</option>
+                                <option value="month">Last Month</option>
+                                <option value="3months">Last 3 Months</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="mood-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="right-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Personalized Recommendations</h2>
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        
+                        <div class="recommendation">
+                            <h4>Mindfulness Exercise</h4>
+                            <p>Based on your recent stress levels, try a 5-minute breathing exercise to center yourself.</p>
+                        </div>
+                        
+                        <div class="recommendation">
+                            <h4>Sleep Quality</h4>
+                            <p>Your mood tends to be lower after poor sleep. Consider establishing a bedtime routine.</p>
+                        </div>
+                        
+                        <div class="recommendation">
+                            <h4>Social Connection</h4>
+                            <p>You feel better after social interactions. Schedule time with friends this week.</p>
+                        </div>
+                        
+                        <div class="recommendation">
+                            <h4>Physical Activity</h4>
+                            <p>Try a 20-minute walk when feeling down - it's helped you in the past.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Wellness Resources</h2>
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        
+                        <ul class="resources-list">
+                            <li><a href="#"><i class="fas fa-play-circle"></i> Guided Meditation</a></li>
+                            <li><a href="#"><i class="fas fa-video"></i> Stress Management Workshop</a></li>
+                            <li><a href="#"><i class="fas fa-file-pdf"></i> Sleep Hygiene Guide</a></li>
+                            <li><a href="#"><i class="fas fa-podcast"></i> Mental Health Podcasts</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Student Wellness Monitor &copy; 2023 | Privacy Policy | Terms of Service</p>
+            <p>If you're in crisis, please call the National Suicide Prevention Lifeline at 1-800-273-8255</p>
+        </div>
+    </footer>
+
+    <script>
+        // Set current date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        
+        // Mood selection
+        const moodOptions = document.querySelectorAll('.mood-option');
+        let selectedMood = null;
+        
+        moodOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                moodOptions.forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedMood = option.getAttribute('data-value');
+            });
+        });
+        
+        // Sentiment analysis
+        document.getElementById('analyze-btn').addEventListener('click', () => {
+            const journalText = document.getElementById('journal-entry').value;
+            const sentimentResult = document.getElementById('sentiment-result');
+            const saveButton = document.getElementById('save-entry');
+            
+            if (!journalText) {
+                sentimentResult.textContent = "Please enter some text to analyze.";
+                sentimentResult.className = "sentiment-result neutral";
+                sentimentResult.style.display = "block";
+                return;
+            }
+            
+            // Simple sentiment analysis (in a real app, this would use a proper API)
+            const positiveWords = ['good', 'great', 'happy', 'excited', 'joy', 'love', 'nice', 'better', 'well', 'awesome'];
+            const negativeWords = ['bad', 'sad', 'angry', 'hate', 'tired', 'stress', 'stressed', 'anxious', 'worried', 'upset'];
+            
+            let positiveCount = 0;
+            let negativeCount = 0;
+            
+            const words = journalText.toLowerCase().split(/\s+/);
+            
+            words.forEach(word => {
+                if (positiveWords.includes(word)) positiveCount++;
+                if (negativeWords.includes(word)) negativeCount++;
+            });
+            
+            let sentiment;
+            if (positiveCount > negativeCount) {
+                sentiment = "positive";
+            } else if (negativeCount > positiveCount) {
+                sentiment = "negative";
+            } else {
+                sentiment = "neutral";
+            }
+            
+            sentimentResult.innerHTML = `
+                <p>Sentiment Analysis: <strong>${sentiment.toUpperCase()}</strong></p>
+                <p>Positive words: ${positiveCount}, Negative words: ${negativeCount}</p>
+            `;
+            sentimentResult.className = `sentiment-result ${sentiment}`;
+            sentimentResult.style.display = "block";
+            
+            saveButton.style.display = "block";
+        });
+        
+        // Save entry
+        document.getElementById('save-entry').addEventListener('click', () => {
+            if (!selectedMood) {
+                alert("Please select a mood first.");
+                return;
+            }
+            
+            alert("Your entry has been saved successfully!");
+            document.getElementById('journal-entry').value = "";
+            document.getElementById('sentiment-result').style.display = "none";
+            document.getElementById('save-entry').style.display = "none";
+            moodOptions.forEach(o => o.classList.remove('selected'));
+            selectedMood = null;
+            
+            // In a real app, this would send data to a server
+        });
+        
+        // Mood chart
+        const ctx = document.getElementById('mood-chart').getContext('2d');
+        const moodChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Mood Level',
+                    data: [3, 4, 3, 5, 4, 2, 4],
+                    borderColor: '#4a6fa5',
+                    backgroundColor: 'rgba(74, 111, 165, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 1,
+                        max: 5,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                const moods = {
+                                    1: 'Very Sad',
+                                    2: 'Sad',
+                                    3: 'Neutral',
+                                    4: 'Good',
+                                    5: 'Great'
+                                };
+                                return moods[value];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Simulate loading previous data
+        document.getElementById('time-range').addEventListener('change', function() {
+            // In a real app, this would fetch different data based on the time range
+            const newData = {
+                'week': [3, 4, 3, 5, 4, 2, 4],
+                'month': [3, 4, 3, 5, 4, 2, 4, 3, 4, 5, 4, 3, 4, 5, 3, 4, 5, 4, 3, 2, 4, 3, 4, 5, 4, 3, 4, 5, 4, 3],
+                '3months': [4, 3, 4, 5, 4, 3, 4, 3, 4, 5, 4, 3, 4, 5, 4] // shortened for example
+            };
+            
+            moodChart.data.labels = this.value === 'week' ? 
+                ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : 
+                Array.from({length: newData[this.value].length}, (_, i) => `Day ${i+1}`);
+                
+            moodChart.data.datasets[0].data = newData[this.value];
+            moodChart.update();
+        });
+    </script>
+</body>
+</html>
